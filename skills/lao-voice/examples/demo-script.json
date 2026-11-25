@@ -1,0 +1,37 @@
+{
+  "title": "ຕົວຢ່າງກາຕູນພາກສຽງລາວ — Demo",
+  "comp": "LaoDemo",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "voDir": "audio/vo-demo",
+  "style": {
+    "laoFont": "Noto Sans Lao"
+  },
+  "cast": {
+    "king": { "name": "ພະຍາ", "color": "#FF8B7B", "profile": "king" },
+    "xieng": { "name": "ຊຽງໝ້ຽງ", "color": "#F6C84C", "profile": "xieng" }
+  },
+  "music": [],
+  "scenes": [
+    {
+      "id": "intro",
+      "shot": "Royal courtyard: proud King challenges clever Xieng Mieng",
+      "lead": 0.4,
+      "pad": 0.4,
+      "lines": [
+        {
+          "who": "king",
+          "text": "ຊຽງໝ້ຽງ! ເຂົາວ່າເຈົ້າສະຫຼາດ\nຫຼາຍແມ່ນບໍ່?",
+          "hold": 0.25
+        },
+        {
+          "who": "xieng",
+          "profile": "youth_excited",
+          "text": "ກໍພໍໄດ້ຢູ່ພະອົງ!\nລອງທົດສອບເບິ່ງໄດ້ເລີຍ!",
+          "hold": 0.3
+        }
+      ]
+    }
+  ]
+}
