@@ -1,6 +1,6 @@
 {
   "name": "lao-voice",
-  "version": "1.0.0",
-  "description": "Free Lao neural TTS skill (Microsoft Edge TTS + FFmpeg character voice shaping + 30fps lip-sync + Noto Sans Lao font), standalone or paired with motion-muse.",
+  "version": "1.1.0",
+  "description": "100% free Lao multi-voice TTS skill: Edge TTS + gTTS + 33 FFmpeg character/FX voice profiles + optional free local Seed-VC voice cloning + 30fps lip-sync + Noto Sans Lao font, standalone or paired with motion-muse.",
   "license": "MIT"
 }

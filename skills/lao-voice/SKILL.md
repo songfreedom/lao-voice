@@ -1,11 +1,11 @@
 ---
 name: lao-voice
-description: Free Lao neural voiceover (TTS) skill using Microsoft Edge Neural TTS (lo-LA-ChanthavongNeural and lo-LA-KeomanyNeural) plus FFmpeg character voice shaping (16 distinct Lao character profiles), loudness normalization, Telegram/WhatsApp .ogg voice notes, 30fps lip-sync envelopes, and direct integration with motion-muse / Remotion video projects (including Noto Sans Lao font setup). Use whenever the user asks for Lao voiceover, Lao narration, Lao dubbing, multi-character Lao cartoon voices, or Lao speech replies (ພາກສຽງລາວ, ອ່ານອອກສຽງພາສາລາວ, ສຽງພາກລາວ) without paid API keys.
+description: 100% free Lao multi-voice TTS skill using Microsoft Edge Neural TTS (lo-LA-ChanthavongNeural and lo-LA-KeomanyNeural), Google Translate Lao TTS (gTTS), 33 FFmpeg character & effect voice profiles (male, female, kids, elders, giant, ghost, robot, radio, whisper, underwater), optional free local zero-shot voice cloning via Seed-VC (--clone any 5s voice clip for unlimited realistic Lao voices), Telegram/WhatsApp .ogg voice notes, 30fps lip-sync envelopes, and direct motion-muse / Remotion integration with Noto Sans Lao font setup. Use whenever the user asks for Lao voiceover, Lao narration, Lao dubbing, multi-character Lao cartoon voices, or Lao speech replies (ພາກສຽງລາວ, ສຽງພາກລາວ, ສຽງຫຼາຍແບບ) without paid API keys.
 ---
 
 # Lao Voice (`lao-voice`)
 
-Generate natural, free **Lao (ພາສາລາວ)** voiceovers and multi-character cartoon voices locally using **Microsoft Edge Neural TTS (`edge-tts`) + `FFmpeg`** — zero API keys, zero paid subscriptions. Designed to work standalone (chat bots, Telegram/WhatsApp voice notes, standalone narrations) and as a drop-in Lao voice + font companion for **`motion-muse` / `toon-story` / Remotion**.
+Generate natural, **100% free Lao (ພາສາລາວ)** voiceovers with **33 built-in character & effect voices** — plus **unlimited custom realistic voices for free** via local zero-shot voice cloning (`Seed-VC`) — zero API keys, zero paid subscriptions. Works standalone (OpenBot, OpenClaw, Telegram/WhatsApp voice notes, CLI) and as a drop-in Lao voice + font companion for **`motion-muse` / `toon-story` / Remotion**.
 
 `SKILL_DIR` below is the folder containing this `SKILL.md`. If unknown:
 ```bash
@@ -19,9 +19,7 @@ bash "$SKILL_DIR/scripts/setup.sh"
 ```
 Checks `python3`, `ffmpeg`, `curl`, and `edge-tts` (supports `edge-tts` CLI, `python3 -m edge_tts`, or `uvx edge-tts`). Stop and report if it prints `MISSING:` instead of `READY: lao-voice`.
 
-## 1. Quick single-line voiceover (`speak`)
-
-Use for standalone Lao narration, bot voice replies, or single dialogue lines:
+## 1. Quick single-line voiceover (`speak`) & voice audition (`preview`)
 
 ```bash
 # Standard MP3 (for video, web, general playback)
@@ -32,79 +30,84 @@ python3 "$SKILL_DIR/scripts/lao_voice.py" speak \
 
 # Telegram / WhatsApp voice note (.ogg Opus 48kHz)
 python3 "$SKILL_DIR/scripts/lao_voice.py" speak \
-  --profile female \
+  --profile female_bright \
   --text "ມື້ນີ້ອາກາດດີຫຼາຍເດີ້!" \
   --out ./out/reply.ogg
 
-# With 30fps lip-sync envelope JSON
+# 3rd native Lao base voice (Google Translate TTS, free via gTTS)
 python3 "$SKILL_DIR/scripts/lao_voice.py" speak \
-  --profile xieng \
-  --text "ອໍ້! ຄິດອອກແລ້ວ!" \
-  --out ./out/idea.mp3 \
-  --envelope ./out/idea.env.json
+  --profile google \
+  --text "ສະບາຍດີ ນີ້ແມ່ນສຽງພາສາລາວອີກແບບໜຶ່ງ!" \
+  --out ./out/google.mp3
+
+# Generate sample MP3 clips to listen & compare multiple voices
+python3 "$SKILL_DIR/scripts/lao_voice.py" preview \
+  --profiles narrator,female,grandma,xieng,boy,girl,king,giant,ghost,robot \
+  --out ./previews
 ```
 
-Useful flags:
-- `--profile <name>` — character timbre preset (run `python3 "$SKILL_DIR/scripts/lao_voice.py" profiles` to inspect all presets)
-- `--voice`, `--rate`, `--pitch`, `--af` — override base Edge voice, speed (`+8%`, `-6%`), pitch (`+10Hz`, `-8Hz`), or FFmpeg filter chain
-- `--text-file <path>` — read Lao text from a UTF-8 file instead of `--text`
-- `--lufs -16` — loudness target (default `-16` LUFS)
-- `--raw` — skip FFmpeg character EQ/pitch shaping
-- `--json` — print machine-readable JSON metadata (`file`, `duration`, `frames`)
+Useful flags for `speak`:
+- `--profile <name>` — pick from 33 free built-in character/effect presets (`python3 "$SKILL_DIR/scripts/lao_voice.py" profiles`)
+- `--engine edge|gtts` — switch free base TTS engine (`edge` = Microsoft Neural, `gtts` = Google Lao)
+- `--voice`, `--rate`, `--pitch`, `--af` — override base voice, speed (`+8%`, `-6%`), pitch (`+10Hz`, `-8Hz`), or FFmpeg filter chain
+- `--clone <ref.wav>` — free local zero-shot voice cloning via Seed-VC (see Section 3)
+- `--envelope <out.json>` — export 30fps RMS lip-sync envelope JSON
+- `--text-file <path>`, `--lufs -16`, `--raw`, `--no-clean`, `--json`
 
-## 2. Built-in Lao character voice profiles
+## 2. 33 Built-in free Lao character & effect profiles
 
-Edge TTS has two native Lao neural voices (`lo-LA-ChanthavongNeural` male and `lo-LA-KeomanyNeural` female). `lao_voice.py` shapes pitch, speed, formant (`asetrate` + `atempo`), EQ, and reverb with FFmpeg so multiple characters sound clearly distinct:
+Run `python3 "$SKILL_DIR/scripts/lao_voice.py" profiles` (or `--category male|female|youth|gtts|fx`) to inspect all presets:
 
-| Profile | Base Voice | Character / Mood |
-|---|---|---|
-| `narrator` / `host` | Male (`Chanthavong`) | Crisp presenter / TikTok & YouTube host |
-| `female` / `mother` | Female (`Keomany`) | Natural warm adult woman |
-| `female_bright` | Female (`Keomany`) | Cheerful, lively young woman |
-| `female_dream` | Female (`Keomany`) | Soft dreamy voice with subtle echo |
-| `male` / `father` | Male (`Chanthavong`) | Warm adult man / father |
-| `youth` / `xieng` | Male (`Chanthavong`) | Bright, quick-witted youth / boy / novice |
-| `youth_excited` | Male (`Chanthavong`) | Energetic / smug / excited youth |
-| `king` | Male (`Chanthavong`) | Deep, commanding older royal baritone |
-| `merchant` | Male (`Chanthavong`) | Booming, boastful adult male |
-| `elder` | Male (`Chanthavong`) | Calm, warm, unhurried elder / abbot |
-| `oracle` | Male (`Chanthavong`) | Deep mystical sage with hall echo |
-| `shock` | Male (`Chanthavong`) | Exasperated / shocked comic male reaction |
+| Category | Profiles |
+|---|---|
+| **Male (`male`)** | `narrator`, `host`, `news`, `storyteller`, `male`, `father`, `king`, `merchant`, `elder`, `oracle`, `shock` |
+| **Female (`female`)** | `female`, `mother`, `female_bright`, `female_soft`, `female_dream`, `female_shock`, `grandma` |
+| **Youth & Kids (`youth`)** | `youth`, `xieng`, `youth_excited`, `boy`, `girl` |
+| **Google Lao Base (`gtts`)** | `google`, `google_kid` *(3rd native Lao base voice via `gTTS`, auto-runs via `uvx` or `pip install gTTS`)* |
+| **Cartoon & FX (`fx`)** | `giant`, `chipmunk`, `ghost`, `robot`, `radio`, `megaphone`, `whisper`, `underwater` |
 
-## 3. Pairing with `motion-muse` / `toon-story` (Remotion videos)
+## 3. Unlimited realistic free voices via local Seed-VC (`--clone`)
+
+To turn Lao Edge TTS speech into **any human or character voice for free** (while keeping 100% accurate native Lao pronunciation):
+1. One-time install (runs locally on Mac Apple Silicon MPS or CPU, zero training required):
+   ```bash
+   bash "$SKILL_DIR/scripts/setup-seed-vc.sh"
+   ```
+2. Pass any 5–15 second clean voice sample (`.wav`/`.mp3`, even in another language) to `--clone`:
+   ```bash
+   python3 "$SKILL_DIR/scripts/lao_voice.py" speak \
+     --profile narrator \
+     --clone ./voices/grandpa_sample.wav \
+     --text "ນິທານເລື່ອງນີ້ເກີດຂຶ້ນດົນມາແລ້ວ..." \
+     --out ./out/grandpa_lao.mp3
+   ```
+3. In `build` mode (`script.json`), set `"clone": "voices/grandpa_sample.wav"` inside `cast.<id>` or on individual lines.
+
+## 4. Pairing with `motion-muse` / `toon-story` (Remotion videos)
 
 When the user asks for a **Lao-language video or 3D cartoon episode** using `motion-muse`, **use `lao-voice` automatically instead of ElevenLabs** (do not ask to pay for ElevenLabs unless the user explicitly asks for ElevenLabs).
 
 ### Step A — Fetch the Lao font (`Noto Sans Lao`)
-`motion-muse` installs Thai fonts by default. Always add `Noto Sans Lao` for Lao titles and subtitles:
 ```bash
 bash "$SKILL_DIR/scripts/fetch-lao-font.sh" <project>/public/fonts
 ```
-Load `fonts/NotoSansLao[wdth,wght].ttf` with `FontFace` (`weight: '100 900'`) + Remotion `delayRender`/`continueRender`, and set `lineHeight >= 1.45` so Lao upper vowels and tone marks never clip. For per-word/character kinetic animation, segment with `Intl.Segmenter('lo', { granularity: 'grapheme' })`.
+Load `fonts/NotoSansLao[wdth,wght].ttf` with `FontFace` (`weight: '100 900'`) + Remotion `delayRender`/`continueRender`, set `lineHeight >= 1.45`, and segment kinetic text with `Intl.Segmenter('lo', { granularity: 'grapheme' })`.
 
 ### Step B — Batch-build voiced episodes (`build`)
-Write `src/<slug>/script.json` (see `$SKILL_DIR/examples/demo-script.json` for schema), then run:
+Write `src/<slug>/script.json` (see `$SKILL_DIR/examples/demo-script.json`), then run:
 ```bash
 python3 "$SKILL_DIR/scripts/lao_voice.py" build <project> <project>/src/<slug>/script.json
 ```
-What `build` generates automatically:
-1. All character voice MP3 files under `<project>/public/<voDir>/<line-id>.mp3` (with SHA-256 caching so unchanged lines aren't regenerated)
-2. `timeline.json` — frame-accurate `scenes`, `lines` (with `file` and 30fps RMS lip-sync `env` compatible with `motion-muse`'s `StoryAudio` and `mouthOf()`), `sfx`, `music`, `cues`, and `total`
+Generates:
+1. All character voice MP3s under `<project>/public/<voDir>/<line-id>.mp3` (with SHA-256 caching)
+2. `timeline.json` — frame-accurate `scenes`, `lines` (with `file` + 30fps lip-sync `env` compatible with `motion-muse`'s `StoryAudio` and `mouthOf()`), `sfx`, `music`, `cues`, `total`
 3. `storyboard.json` — ready for `motion-muse`'s `director.py render`
 4. `<Comp>.vtt` — captions synced to exact voiced timestamps
 
-Per-line fields supported in `script.json`:
-- `who`: speaker ID (matched against `cast[who].profile`, then built-in profile name, else `narrator`)
-- `profile`: optional per-line emotion/profile override (e.g. `"youth_excited"`, `"shock"`, `"female_dream"`)
-- `text`: on-screen subtitle text (may include `\n` and `«»`)
-- `speak`: optional spoken Lao override if pronunciation differs from display text (e.g. spelling out numbers or English brand names phonetically in Lao)
-- `hold` / `gap`: pause in seconds after the line (default `0.25`)
-- `cue`: optional cue name recorded in `timeline.cues` at the exact scene-local start frame of the line
-- `voices`: optional top-level map in `script.json` to define custom character profiles (`{ "voice", "rate", "pitch", "af" }`)
+Per-line / cast fields supported in `script.json`: `who`, `profile`, `engine`, `clone`, `text`, `speak`, `hold`/`gap`, `cue`, and top-level custom `voices` map.
 
-## 4. Lao TTS quality rules
+## 5. Lao TTS quality rules
 
-- **Clean spoken text:** `lao_voice.py` automatically turns `\n` into `, `, strips `«»`, and removes the silent cancellation mark `໌` (`U+0ECC`) for cleaner Edge TTS pronunciation (pass `--no-clean` to disable).
-- **Numbers & English terms:** For crisp Lao narration, write numbers and English names in Lao words inside `speak` (e.g. `ຕອນທີສາມ` instead of `ຕອນທີ 3`, `ເອໄອ` instead of `AI`) while keeping clean formatting in `text`.
+- **Clean spoken text:** `lao_voice.py` turns `\n` into `, `, strips `«»`, and removes the silent mark `໌` (`U+0ECC`) automatically (`--no-clean` to disable).
+- **Numbers & English terms:** Write numbers and English names phonetically in Lao inside `speak` (e.g. `ຕອນທີສາມ`, `ເອໄອ`) while keeping clean display formatting in `text`.
 - **BGM mixing:** Duck background music to ~`0.15–0.22` volume while voice lines play (`<StoryAudio tl={T} voice={1.0} duck={0.36} />`).
-- **Network required:** `edge-tts` connects to Microsoft Edge's online neural TTS service; `lao_voice.py` retries automatically up to 4 times on transient network glitches.
