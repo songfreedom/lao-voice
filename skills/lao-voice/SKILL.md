@@ -1,11 +1,11 @@
 ---
 name: lao-voice
-description: 100% free Lao multi-voice TTS skill using Microsoft Edge Neural TTS (lo-LA-ChanthavongNeural and lo-LA-KeomanyNeural), Google Translate Lao TTS (gTTS), 33 FFmpeg character & effect voice profiles (male, female, kids, elders, giant, ghost, robot, radio, whisper, underwater), optional free local zero-shot voice cloning via Seed-VC (--clone any 5s voice clip for unlimited realistic Lao voices), Telegram/WhatsApp .ogg voice notes, 30fps lip-sync envelopes, and direct motion-muse / Remotion integration with Noto Sans Lao font setup. Use whenever the user asks for Lao voiceover, Lao narration, Lao dubbing, multi-character Lao cartoon voices, or Lao speech replies (ພາກສຽງລາວ, ສຽງພາກລາວ, ສຽງຫຼາຍແບບ) without paid API keys.
+description: 100% free Lao multi-voice TTS skill using Microsoft Edge Neural TTS (lo-LA-ChanthavongNeural and lo-LA-KeomanyNeural), 31 verified FFmpeg character & effect voice profiles (male, female, kids, elders, giant, ghost, robot, radio, whisper, underwater), optional free local zero-shot voice cloning via Seed-VC (--clone any 5s voice clip for unlimited realistic Lao voices), Telegram/WhatsApp .ogg voice notes, 30fps lip-sync envelopes, and direct motion-muse / Remotion integration with Noto Sans Lao font setup. Use whenever the user asks for Lao voiceover, Lao narration, Lao dubbing, multi-character Lao cartoon voices, or Lao speech replies (ພາກສຽງລາວ, ສຽງພາກລາວ, ສຽງຫຼາຍແບບ) without paid API keys.
 ---
 
 # Lao Voice (`lao-voice`)
 
-Generate natural, **100% free Lao (ພາສາລາວ)** voiceovers with **33 built-in character & effect voices** — plus **unlimited custom realistic voices for free** via local zero-shot voice cloning (`Seed-VC`) — zero API keys, zero paid subscriptions. Works standalone (OpenBot, OpenClaw, Telegram/WhatsApp voice notes, CLI) and as a drop-in Lao voice + font companion for **`motion-muse` / `toon-story` / Remotion**.
+Generate natural, **100% free Lao (ພາສາລາວ)** voiceovers with **31 verified character & effect profiles (28 distinct voices)** — plus **unlimited custom realistic voices for free** via local zero-shot voice cloning (`Seed-VC`) — zero API keys, zero paid subscriptions. Works standalone (OpenBot, OpenClaw, Telegram/WhatsApp voice notes, CLI) and as a drop-in Lao voice + font companion for **`motion-muse` / `toon-story` / Remotion**.
 
 `SKILL_DIR` below is the folder containing this `SKILL.md`. If unknown:
 ```bash
@@ -34,12 +34,6 @@ python3 "$SKILL_DIR/scripts/lao_voice.py" speak \
   --text "ມື້ນີ້ອາກາດດີຫຼາຍເດີ້!" \
   --out ./out/reply.ogg
 
-# 3rd native Lao base voice (Google Translate TTS, free via gTTS)
-python3 "$SKILL_DIR/scripts/lao_voice.py" speak \
-  --profile google \
-  --text "ສະບາຍດີ ນີ້ແມ່ນສຽງພາສາລາວອີກແບບໜຶ່ງ!" \
-  --out ./out/google.mp3
-
 # Generate sample MP3 clips to listen & compare multiple voices
 python3 "$SKILL_DIR/scripts/lao_voice.py" preview \
   --profiles narrator,female,grandma,xieng,boy,girl,king,giant,ghost,robot \
@@ -47,23 +41,21 @@ python3 "$SKILL_DIR/scripts/lao_voice.py" preview \
 ```
 
 Useful flags for `speak`:
-- `--profile <name>` — pick from 33 free built-in character/effect presets (`python3 "$SKILL_DIR/scripts/lao_voice.py" profiles`)
-- `--engine edge|gtts` — switch free base TTS engine (`edge` = Microsoft Neural, `gtts` = Google Lao)
-- `--voice`, `--rate`, `--pitch`, `--af` — override base voice, speed (`+8%`, `-6%`), pitch (`+10Hz`, `-8Hz`), or FFmpeg filter chain
+- `--profile <name>` — pick from 31 free built-in character/effect presets (`python3 "$SKILL_DIR/scripts/lao_voice.py" profiles`)
+- `--voice`, `--rate`, `--pitch`, `--af` — override base voice (`lo-LA-ChanthavongNeural` / `lo-LA-KeomanyNeural`), speed (`+8%`, `-6%`), pitch (`+10Hz`, `-8Hz`), or FFmpeg filter chain
 - `--clone <ref.wav>` — free local zero-shot voice cloning via Seed-VC (see Section 3)
 - `--envelope <out.json>` — export 30fps RMS lip-sync envelope JSON
 - `--text-file <path>`, `--lufs -16`, `--raw`, `--no-clean`, `--json`
 
-## 2. 33 Built-in free Lao character & effect profiles
+## 2. 31 Built-in free Lao character & effect profiles
 
-Run `python3 "$SKILL_DIR/scripts/lao_voice.py" profiles` (or `--category male|female|youth|gtts|fx`) to inspect all presets:
+Run `python3 "$SKILL_DIR/scripts/lao_voice.py" profiles` (or `--category male|female|youth|fx`) to inspect all presets:
 
 | Category | Profiles |
 |---|---|
 | **Male (`male`)** | `narrator`, `host`, `news`, `storyteller`, `male`, `father`, `king`, `merchant`, `elder`, `oracle`, `shock` |
 | **Female (`female`)** | `female`, `mother`, `female_bright`, `female_soft`, `female_dream`, `female_shock`, `grandma` |
 | **Youth & Kids (`youth`)** | `youth`, `xieng`, `youth_excited`, `boy`, `girl` |
-| **Google Lao Base (`gtts`)** | `google`, `google_kid` *(3rd native Lao base voice via `gTTS`, auto-runs via `uvx` or `pip install gTTS`)* |
 | **Cartoon & FX (`fx`)** | `giant`, `chipmunk`, `ghost`, `robot`, `radio`, `megaphone`, `whisper`, `underwater` |
 
 ## 3. Unlimited realistic free voices via local Seed-VC (`--clone`)
@@ -104,7 +96,7 @@ Generates:
 3. `storyboard.json` — ready for `motion-muse`'s `director.py render`
 4. `<Comp>.vtt` — captions synced to exact voiced timestamps
 
-Per-line / cast fields supported in `script.json`: `who`, `profile`, `engine`, `clone`, `text`, `speak`, `hold`/`gap`, `cue`, and top-level custom `voices` map.
+Per-line / cast fields supported in `script.json`: `who`, `profile`, `clone`, `text`, `speak`, `hold`/`gap`, `cue`, and top-level custom `voices` map.
 
 ## 5. Lao TTS quality rules
 

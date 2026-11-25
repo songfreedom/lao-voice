@@ -29,9 +29,8 @@ from typing import Any
 
 # Free Lao base voices:
 #   - edge-tts: lo-LA-ChanthavongNeural (Male), lo-LA-KeomanyNeural (Female)
-#   - gtts:     Google Translate Lao ('lo') — a 3rd distinct native Lao base voice
-# Plus FFmpeg formant/EQ/FX shaping for 30 distinct voices, and optional local Seed-VC (--clone ref.wav)
-# for unlimited zero-shot realistic human voices in native Lao!
+# Plus FFmpeg formant/EQ/FX shaping for 31 distinct profiles (28 unique voices + 3 aliases),
+# and optional local Seed-VC (--clone ref.wav) for unlimited zero-shot realistic human voices in native Lao!
 PROFILES: dict[str, dict[str, str]] = {
     # --- Male realistic / story personas (Edge Male base) ---
     "narrator": {
@@ -246,26 +245,6 @@ PROFILES: dict[str, dict[str, str]] = {
         "af": "aresample=24000,asetrate=24000*0.89,atempo=1.1236,aresample=44100,highpass=f=90,equalizer=f=240:width_type=o:width=1.3:g=2.6,lowpass=f=6500",
     },
 
-    # --- 3rd Native Free Base Voice (Google Translate TTS 'lo') ---
-    "google": {
-        "cat": "gtts",
-        "engine": "gtts",
-        "desc": "Google Translate Lao voice (3rd distinct native Lao base voice!)",
-        "voice": "lo",
-        "rate": "+0%",
-        "pitch": "+0Hz",
-        "af": "highpass=f=95,equalizer=f=3000:width_type=o:width=1.5:g=1.8",
-    },
-    "google_kid": {
-        "cat": "gtts",
-        "engine": "gtts",
-        "desc": "Playful child variant using Google Lao base voice",
-        "voice": "lo",
-        "rate": "+0%",
-        "pitch": "+0Hz",
-        "af": "aresample=24000,asetrate=24000*1.18,atempo=0.8475,aresample=44100,highpass=f=140,treble=g=2.0",
-    },
-
     # --- Cartoon, Fantasy & Sound-FX Voices (Edge + FFmpeg FX) ---
     "giant": {
         "cat": "fx",
@@ -359,26 +338,6 @@ def find_edge_tts_cmd() -> list[str]:
         "edge-tts not found. Install it with either:\n"
         "  pip install edge-tts\n"
         "or install uv (https://docs.astral.sh/uv/) so `uvx edge-tts` works."
-    )
-
-
-def find_gtts_cmd() -> list[str]:
-    """Return the command prefix to run gtts-cli on this machine."""
-    if shutil.which("gtts-cli"):
-        return ["gtts-cli"]
-    probe = subprocess.run(
-        [sys.executable, "-c", "import gtts"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    if probe.returncode == 0:
-        return [sys.executable, "-m", "gtts.cli"]
-    if shutil.which("uvx"):
-        return ["uvx", "--quiet", "--from", "gTTS", "gtts-cli"]
-    raise RuntimeError(
-        "gTTS not found. Install it with:\n"
-        "  pip install gTTS\n"
-        "or install uv so `uvx --from gTTS gtts-cli` works."
     )
 
 
@@ -566,13 +525,7 @@ def synthesize_line(
     if ext not in ("mp3", "ogg", "opus", "wav"):
         raise ValueError(f"Unsupported output format '{ext}'. Use mp3, ogg, or wav.")
 
-    engine = prof.get("engine", "edge").lower()
-    if engine == "edge":
-        tts_cmd_prefix = find_edge_tts_cmd()
-    elif engine == "gtts":
-        tts_cmd_prefix = find_gtts_cmd()
-    else:
-        raise ValueError(f"Unsupported engine '{engine}'. Use 'edge' or 'gtts'.")
+    tts_cmd_prefix = find_edge_tts_cmd()
 
     with tempfile.TemporaryDirectory(prefix="lao_tts_") as td:
         td_path = pathlib.Path(td)
@@ -580,31 +533,23 @@ def synthesize_line(
         last_err = ""
         for attempt in range(retries):
             try:
-                if engine == "edge":
-                    cmd = [
-                        *tts_cmd_prefix,
-                        "--voice", prof["voice"],
-                        f"--rate={prof.get('rate', '+0%')}",
-                        f"--pitch={prof.get('pitch', '+0Hz')}",
-                        "--text", text,
-                        "--write-media", str(raw_mp3),
-                    ]
-                else:
-                    cmd = [
-                        *tts_cmd_prefix,
-                        "--lang", prof.get("voice", "lo") or "lo",
-                        "--output", str(raw_mp3),
-                        text,
-                    ]
+                cmd = [
+                    *tts_cmd_prefix,
+                    "--voice", prof["voice"],
+                    f"--rate={prof.get('rate', '+0%')}",
+                    f"--pitch={prof.get('pitch', '+0Hz')}",
+                    "--text", text,
+                    "--write-media", str(raw_mp3),
+                ]
                 subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
                 if raw_mp3.exists() and raw_mp3.stat().st_size > 500:
                     break
-                last_err = f"empty audio returned by {engine}"
+                last_err = "empty audio returned by edge-tts"
             except subprocess.CalledProcessError as e:
                 last_err = e.stderr.decode(errors="ignore").strip()
             time.sleep(1.5 * (attempt + 1))
         else:
-            raise RuntimeError(f"{engine} TTS failed after {retries} attempts: {last_err}")
+            raise RuntimeError(f"edge-tts failed after {retries} attempts: {last_err}")
 
         stage_in = raw_mp3
         if clone_ref is not None:
@@ -1021,12 +966,12 @@ def cmd_build(args: argparse.Namespace) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(
         prog="lao_voice.py",
-        description="100% Free Lao Multi-Voice TTS (Edge TTS + gTTS + FFmpeg FX + Optional Local Seed-VC Cloning).",
+        description="100% Free Lao Multi-Voice TTS (Edge TTS + 31 FFmpeg Character/FX Profiles + Optional Local Seed-VC Cloning).",
     )
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p_prof = sub.add_parser("profiles", help="List built-in free Lao character & effect voice profiles")
-    p_prof.add_argument("--category", "-c", choices=["male", "female", "youth", "gtts", "fx"], help="Filter by category")
+    p_prof.add_argument("--category", "-c", choices=["male", "female", "youth", "fx"], help="Filter by category")
     p_prof.add_argument("--json", action="store_true", help="Output as JSON")
     p_prof.set_defaults(func=cmd_profiles)
 
@@ -1035,7 +980,7 @@ def main() -> None:
     p_spk.add_argument("--text-file", help="Read Lao text from a UTF-8 file")
     p_spk.add_argument("--out", "-o", required=True, help="Output file path (.mp3, .ogg, or .wav)")
     p_spk.add_argument("--profile", "-p", default="narrator", help="Voice profile name (default: narrator)")
-    p_spk.add_argument("--engine", choices=["edge", "gtts"], help="Override base TTS engine (edge or gtts)")
+    p_spk.add_argument("--engine", choices=["edge"], default="edge", help="Base TTS engine (default: edge)")
     p_spk.add_argument("--voice", help="Override base voice (e.g. lo-LA-KeomanyNeural)")
     p_spk.add_argument("--rate", help="Override speed (Edge TTS, e.g. +5%%, -10%%)")
     p_spk.add_argument("--pitch", help="Override pitch (Edge TTS, e.g. +8Hz, -6Hz)")
@@ -1058,7 +1003,7 @@ def main() -> None:
     p_prev.add_argument("--out", "-o", default="./lao-voice-previews", help="Output folder for preview MP3s")
     p_prev.add_argument("--text", "-t", default="ສະບາຍດີ! ນີ້ແມ່ນສຽງທົດສອບພາສາລາວ", help="Sample Lao phrase")
     p_prev.add_argument("--profiles", help="Comma-separated profile names (e.g. king,xieng,grandma,ghost,robot)")
-    p_prev.add_argument("--category", "-c", choices=["male", "female", "youth", "gtts", "fx"], help="Preview all in a category")
+    p_prev.add_argument("--category", "-c", choices=["male", "female", "youth", "fx"], help="Preview all in a category")
     p_prev.add_argument("--lufs", type=float, default=-16.0, help="Target loudness LUFS (default: -16)")
     p_prev.set_defaults(func=cmd_preview)
 

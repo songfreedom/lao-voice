@@ -1,17 +1,15 @@
 # lao-voice
 
-Agent skill for **100% free Lao multi-voice TTS (ພາກສຽງພາສາລາວຟຣີຫຼາຍແບບ)** — zero API keys, zero subscriptions. Combines **Microsoft Edge Neural TTS (`edge-tts`)**, **Google Translate Lao TTS (`gTTS`)**, **33 FFmpeg character & FX voice profiles**, optional **free local zero-shot voice cloning (`Seed-VC`)**, Telegram/WhatsApp `.ogg` voice notes, 30fps lip-sync envelopes, and direct integration with **[peichh/motion-muse](https://github.com/peichh/motion-muse)** + `Noto Sans Lao` font setup.
+Agent skill for **100% free Lao multi-voice TTS (ພາກສຽງພາສາລາວຟຣີຫຼາຍແບບ)** — zero API keys, zero subscriptions. Combines **Microsoft Edge Neural TTS (`edge-tts`)**, **31 verified FFmpeg character & FX voice profiles (28 distinct voices)**, optional **free local zero-shot voice cloning (`Seed-VC`)**, Telegram/WhatsApp `.ogg` voice notes, 30fps lip-sync envelopes, and direct integration with **[peichh/motion-muse](https://github.com/peichh/motion-muse)** + `Noto Sans Lao` font setup.
 
-## 3 ຊັ້ນຄວາມຫຼາກຫຼາຍຂອງສຽງ (ຟຣີ 100% ທັງໝົດ!)
+## 2 ຊັ້ນຄວາມຫຼາກຫຼາຍຂອງສຽງ (ຟຣີ 100% ທັງໝົດ!)
 
-1. **3 ສຽງພາສາລາວຕົ້ນສະບັບຟຣີ:** Microsoft Edge ຊາຍ (`lo-LA-ChanthavongNeural`), ຍິງ (`lo-LA-KeomanyNeural`) + Google Lao (`gTTS`)
-2. **33 ໂປຣໄຟລ໌ສຽງຕົວລະຄອນ & ເອັບເຟັກ (ພ້ອມໃຊ້ທັນທີ):**
+1. **31 ໂປຣໄຟລ໌ສຽງຕົວລະຄອນ & ເອັບເຟັກ (ພ້ອມໃຊ້ທັນທີ 28 ສຽງບໍ່ຊ້ຳກັນ):**
    - **ຜູ້ຊາຍ:** `narrator`, `host`, `news`, `storyteller`, `male`, `father`, `king`, `merchant`, `elder`, `oracle`, `shock`
    - **ຜູ້ຍິງ:** `female`, `mother`, `female_bright`, `female_soft`, `female_dream`, `female_shock`, `grandma`
    - **ເດັກນ້ອຍ & ໄວລຸ້ນ:** `youth`, `xieng`, `youth_excited`, `boy`, `girl`
-   - **ສຽງ Google Lao:** `google`, `google_kid`
-   - **ກາຕູນ & ເອັບເຟັກ:** `giant` (ຍັກ), `chipmunk` (ສຽງໜູ/ກະຮອກ), `ghost` (ຜີ), `robot` (ຫຸ່ນຍົນ), `radio` (ວິທະຍຸ/ໂທລະສັບ), `megaphone` (ໂທລະໂຂ່ງ), `whisper` (ກະຊິບ), `underwater` (ໃຕ້ນ້ຳ)
-3. **ໂຄລນສຽງຄົນຈິງບໍ່ຈຳກັດຟຣີ (`--clone` ຜ່ານ `Seed-VC` Local):** ເອົາສຽງພາສາລາວຈາກ `edge-tts` ໄປປ່ຽນເປັນສຽງໃຜກໍໄດ້ຈາກຄລິບສຽງຕົວຢ່າງ 5–15 ວິນາທີ (ຮັນເທິງ Mac Apple Silicon / CPU ຟຣີ ບໍ່ຕ້ອງເທຣນ)
+   - **ກາຕູນ & ເອັບເຟັກ:** `giant` (ຍັກ), `chipmunk` (ສຽງນ້ອຍ/ກະຮອກ), `ghost` (ຜີ), `robot` (ຫຸ່ນຍົນ), `radio` (ວິທະຍຸ/ໂທລະສັບ), `megaphone` (ໂທລະໂຂ່ງ), `whisper` (ກະຊິບ), `underwater` (ໃຕ້ນ້ຳ)
+2. **ໂຄລນສຽງຄົນຈິງບໍ່ຈຳກັດຟຣີ (`--clone` ຜ່ານ `Seed-VC` Local):** ເອົາສຽງພາສາລາວຈາກ `edge-tts` ໄປປ່ຽນເປັນສຽງໃຜກໍໄດ້ຈາກຄລິບສຽງຕົວຢ່າງ 5–15 ວິນາທີ (ຮັນເທິງ Mac Apple Silicon / CPU ຟຣີ ບໍ່ຕ້ອງເທຣນ)
 
 ---
 
@@ -40,7 +38,7 @@ Agent skill for **100% free Lao multi-voice TTS (ພາກສຽງພາສາ�
 ## Usage / ຕົວຢ່າງການໃຊ້
 
 ```bash
-# 1. ເບິ່ງທັງ 33 ໂປຣໄຟລ໌ສຽງ
+# 1. ເບິ່ງທັງ 31 ໂປຣໄຟລ໌ສຽງ
 python3 skills/lao-voice/scripts/lao_voice.py profiles
 
 # 2. ສ້າງໄຟລ໌ທົດລອງຟັງຫຼາຍໆສຽງພ້ອມກັນ
@@ -51,7 +49,6 @@ python3 skills/lao-voice/scripts/lao_voice.py preview \
 # 3. ພາກສຽງ 1 ປະໂຫຍກ (mp3 ຫຼື .ogg ສຳລັບ Telegram/WhatsApp Voice Note)
 python3 skills/lao-voice/scripts/lao_voice.py speak --profile xieng --text "ອໍ້! ຄິດອອກແລ້ວ!" --out ./idea.mp3
 python3 skills/lao-voice/scripts/lao_voice.py speak --profile grandma --text "ຫຼານເອີຍ ມາກິນເຂົ້າເດີ້!" --out ./grandma.ogg
-python3 skills/lao-voice/scripts/lao_voice.py speak --profile google --text "ສະບາຍດີ ນີ້ແມ່ນສຽງລາວອີກແບບ!" --out ./google.mp3
 
 # 4. ໂຄລນສຽງຟຣີຈາກຄລິບຕົວຢ່າງ 5-15 ວິນາທີ (ຕ້ອງຮັນ setup-seed-vc.sh ກ່ອນ)
 python3 skills/lao-voice/scripts/lao_voice.py speak \
